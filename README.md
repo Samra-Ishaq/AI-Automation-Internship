@@ -82,7 +82,7 @@ I practiced core Git commands (`init`, `clone`, `add`, `commit`, `push`, `pull`)
 - [Postman environment](Day-03/Postman/Environment.postman_environment.json)
 - [Google Sheet reference](Day-03/Google%20Sheets/Google%20Sheet%20Link.txt)
 - [Postman screenshots](Day-03/Postman/Screenshots)
-- [n8n workflow screenshot](Day-03/n8n/Workflow%20Screenshot.png)
+- [n8n workflow screenshot](Day-03/n8n/n8n%20workflow%20for%20lead%20managment.png)
 - [GitHub learning artifacts](Day-03/GitHub)
 
 ## Key Takeaway
