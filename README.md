@@ -76,14 +76,14 @@ I practiced core Git commands (`init`, `clone`, `add`, `commit`, `push`, `pull`)
 
 ## Day 03 Artifacts
 
-- Day 03 internship report — `Day-03/Report/Day-03 Report.docx`
-- n8n lead-management workflow — `Day-03/n8n/Lead Management Workflow.json`
-- Postman collection — `Day-03/Postman/MATalogics Lead Management API.postman_collection.json`
-- Postman environment — `Day-03/Postman/Environment.postman_environment.json`
-- Google Sheet reference — `Day-03/Google Sheets/Google Sheet Link.txt`
-- Postman screenshots — `Day-03/Postman/Screenshots/`
-- n8n workflow screenshot — `Day-03/n8n/Workflow Screenshot.png`
-- GitHub learning artifacts — `Day-03/GitHub/`
+- [Day 03 internship report](Day-03/Report/Day-03%20Report.docx)
+- [n8n lead-management workflow](Day-03/n8n/Lead%20Management%20Workflow.json)
+- [Postman collection](Day-03/Postman/MATalogics%20Lead%20Management%20API.postman_collection.json)
+- [Postman environment](Day-03/Postman/Environment.postman_environment.json)
+- [Google Sheet reference](Day-03/Google%20Sheets/Google%20Sheet%20Link.txt)
+- [Postman screenshots](Day-03/Postman/Screenshots)
+- [n8n workflow screenshot](Day-03/n8n/Workflow%20Screenshot.png)
+- [GitHub learning artifacts](Day-03/GitHub)
 
 ## Key Takeaway
 
