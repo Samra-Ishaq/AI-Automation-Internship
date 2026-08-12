@@ -1,0 +1,413 @@
+{
+  "name": "Module 3 - Airtable complete",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "7e68b4ca-c973-4cfa-bb25-0eb7d24d94cc",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        -192
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "apprknd9I4s3xkStn",
+          "mode": "list",
+          "cachedResultName": "MATalogics AI Operations Base",
+          "cachedResultUrl": "https://airtable.com/apprknd9I4s3xkStn"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbleTyhR1r4o20OZP",
+          "mode": "list",
+          "cachedResultName": "List of students",
+          "cachedResultUrl": "https://airtable.com/apprknd9I4s3xkStn/tbleTyhR1r4o20OZP"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "Test Student",
+            "Email": "teststudent@gmail.com",
+            "Status": "Todo",
+            "Task": "Zapier",
+            "Score": 75
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Todo",
+                  "value": "Todo"
+                },
+                {
+                  "name": "In progress",
+                  "value": "In progress"
+                },
+                {
+                  "name": "Done",
+                  "value": "Done"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Task",
+              "displayName": "Task",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Clients",
+              "displayName": "Clients",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "25a85b81-98ee-430d-b304-0418478db2a8",
+      "name": "Create Record",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        240,
+        -192
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "o02JXCOopD4LGnwX",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "apprknd9I4s3xkStn",
+          "mode": "list",
+          "cachedResultName": "MATalogics AI Operations Base",
+          "cachedResultUrl": "https://airtable.com/apprknd9I4s3xkStn"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbleTyhR1r4o20OZP",
+          "mode": "list",
+          "cachedResultName": "List of students",
+          "cachedResultUrl": "https://airtable.com/apprknd9I4s3xkStn/tbleTyhR1r4o20OZP"
+        },
+        "filterByFormula": "={Name} = \"Ali\"",
+        "options": {}
+      },
+      "id": "b413a923-b85f-4570-8bf3-deb3ccb0b593",
+      "name": "Search Records",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        496,
+        -192
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "o02JXCOopD4LGnwX",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "apprknd9I4s3xkStn",
+          "mode": "list",
+          "cachedResultName": "MATalogics AI Operations Base",
+          "cachedResultUrl": "https://airtable.com/apprknd9I4s3xkStn"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbleTyhR1r4o20OZP",
+          "mode": "list",
+          "cachedResultName": "List of students",
+          "cachedResultUrl": "https://airtable.com/apprknd9I4s3xkStn/tbleTyhR1r4o20OZP"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Score": 0,
+            "id": "={{ $json.id }}",
+            "Status": "Done"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Todo",
+                  "value": "Todo"
+                },
+                {
+                  "name": "In progress",
+                  "value": "In progress"
+                },
+                {
+                  "name": "Done",
+                  "value": "Done"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Task",
+              "displayName": "Task",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Clients",
+              "displayName": "Clients",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "dce0de7e-6432-4367-8561-a452844a2bef",
+      "name": "Update Record",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        736,
+        -192
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "o02JXCOopD4LGnwX",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteRecord",
+        "base": {
+          "__rl": true,
+          "value": "apprknd9I4s3xkStn",
+          "mode": "list",
+          "cachedResultName": "MATalogics AI Operations Base",
+          "cachedResultUrl": "https://airtable.com/apprknd9I4s3xkStn"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbleTyhR1r4o20OZP",
+          "mode": "list",
+          "cachedResultName": "List of students",
+          "cachedResultUrl": "https://airtable.com/apprknd9I4s3xkStn/tbleTyhR1r4o20OZP"
+        },
+        "id": "={{ $json.id }}"
+      },
+      "id": "cfcd9e99-6813-4bbd-8afb-3620053168e8",
+      "name": "Delete Record",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        992,
+        -192
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "o02JXCOopD4LGnwX",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Create Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Record": {
+      "main": [
+        [
+          {
+            "node": "Search Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Records": {
+      "main": [
+        [
+          {
+            "node": "Update Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Record": {
+      "main": [
+        [
+          {
+            "node": "Delete Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b6ebbc7b-2681-4d46-9e27-a9556a8676a2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1eccc734f3fee310a103aef24d5a95d5665eef22a396049aaac22d45539be86c"
+  },
+  "nodeGroups": [],
+  "id": "DVPpNyFBj7j55Jka",
+  "tags": []
+}
