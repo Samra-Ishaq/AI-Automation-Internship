@@ -26,18 +26,17 @@ Connected Airtable to n8n using a Personal Access Token (scopes: `data.records:r
 - **Update Record**
 - **Delete Record**
 
-See [`Module3-Airtable-CRUD.json`](./Module3-Airtable-CRUD.json) for the full n8n workflow (Create → Search → Update → Delete chained in sequence).
+See [`Module 3 - Airtable complete.json`](./Module%203%20-%20Airtable%20complete.json) for the full n8n workflow (Create → Search → Update → Delete chained in sequence).
 
 ## Module 4: Automation Workflows
-Four separate n8n workflows, each triggered by an Airtable change and ending in a stakeholder notification:
+All four workflows (Lead Management, Client Onboarding, Project Tracking, and AI Agent Monitoring) are combined in [`Module 4_ Build Automation Workflows.json`](./Module%204_%20Build%20Automation%20Workflows.json).
 
-| Workflow | Trigger | Action | File |
-|---|---|---|---|
-| Lead Management | New Lead in Airtable | Slack notification | [`Workflow1-Lead-Management.json`](./Workflow1-Lead-Management.json) |
-| Client Onboarding | New record created | Generate Client ID → Update Airtable → Slack notification | [`Workflow2-Client-Onboarding.json`](./Workflow2-Client-Onboarding.json) |
-| Project Tracking | Project Status changed | Email notification | [`Workflow3-Project-Tracking.json`](./Workflow3-Project-Tracking.json) |
-| AI Agent Monitoring | Agent Deployment Status changed | Slack notification to Ops | [`Workflow4-AI-Agent-Monitoring.json`](./Workflow4-AI-Agent-Monitoring.json) |
-
+| Workflow | Trigger | Action |
+|---|---|---|
+| Lead Management | New Lead in Airtable | Slack notification |
+| Client Onboarding | New record created | Generate Client ID → Update Airtable → Slack notification |
+| Project Tracking | Project Status changed | Email notification |
+| AI Agent Monitoring | Agent Deployment Status changed | Slack notification to Ops |
 ## Key Troubleshooting
 - Fixed a `403 Forbidden` error by adding the missing `schema.bases:read` scope and base access to the Airtable token.
 - Discovered that Airtable Trigger data is nested under a `fields` object — expressions had to use `$json.fields['Field Name']` instead of `$json['Field Name']`.
