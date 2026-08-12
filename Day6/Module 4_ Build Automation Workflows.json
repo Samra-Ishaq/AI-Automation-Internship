@@ -1,0 +1,661 @@
+{
+  "name": "Module 4: Build Automation Workflows",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableTokenApi",
+        "baseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "=apprknd9I4s3xkStn"
+        },
+        "tableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "=tblWa63YXxBDx9Cwq"
+        },
+        "triggerField": "Lead Name",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [
+        896,
+        -640
+      ],
+      "id": "f0fa72d9-da89-4366-b449-d824cc852975",
+      "name": "Airtable Trigger",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "o02JXCOopD4LGnwX",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "n8n-alerts",
+          "mode": "name"
+        },
+        "text": "=New lead received: {{ $json.fields['Lead Name'] }} (Source: {{ $json.fields['Source'] }}, Interested in: {{ $json.fields['Interested Service'] }})",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        1136,
+        -640
+      ],
+      "id": "6da01411-5659-481b-9672-aabf21fb86be",
+      "name": "Send a message",
+      "webhookId": "7f02c747-113c-44ea-bcd2-f6fc32338f79",
+      "credentials": {
+        "slackApi": {
+          "id": "T6eMVXZfXupS5Kve",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableTokenApi",
+        "baseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "apprknd9I4s3xkStn"
+        },
+        "tableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tblWa63YXxBDx9Cwq"
+        },
+        "triggerField": "Lead Name",
+        "additionalFields": {}
+      },
+      "id": "0e41779b-4b6e-4498-a6d2-e1518e6ac448",
+      "name": "Airtable Record Created",
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [
+        704,
+        -448
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "o02JXCOopD4LGnwX",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "assign-client-id",
+              "name": "generatedClientId",
+              "type": "string",
+              "value": "=CLI-{{ $now.format('yyyyMMdd') }}-{{ $json.id.slice(-5) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a785a3ba-4d42-4c96-9ffa-d3d50ef5083c",
+      "name": "Generate Client ID",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        960,
+        -448
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "apprknd9I4s3xkStn",
+          "mode": "list",
+          "cachedResultName": "MATalogics AI Operations Base",
+          "cachedResultUrl": "https://airtable.com/apprknd9I4s3xkStn"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWa63YXxBDx9Cwq",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/apprknd9I4s3xkStn/tblWa63YXxBDx9Cwq"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Airtable Record Created').item.json.id }}",
+            "Reference ID": "={{ $('Generate Client ID').item.json.generatedClientId }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Lead Name",
+              "displayName": "Lead Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Website",
+                  "value": "Website"
+                },
+                {
+                  "name": "Referral",
+                  "value": "Referral"
+                },
+                {
+                  "name": "Cold Call",
+                  "value": "Cold Call"
+                },
+                {
+                  "name": "Social Media",
+                  "value": "Social Media"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Contact Number",
+              "displayName": "Contact Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Interested Service",
+              "displayName": "Interested Service",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "AI Chatbot",
+                  "value": "AI Chatbot"
+                },
+                {
+                  "name": "Automation",
+                  "value": "Automation"
+                },
+                {
+                  "name": "Consulting",
+                  "value": "Consulting"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Status",
+              "displayName": "Lead Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "Qualified",
+                  "value": "Qualified"
+                },
+                {
+                  "name": "Lost",
+                  "value": "Lost"
+                },
+                {
+                  "name": "Converted",
+                  "value": "Converted"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Received Date",
+              "displayName": "Received Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Related Client",
+              "displayName": "Related Client",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Reference ID",
+              "displayName": "Reference ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "fafa38c8-30ab-4460-8ea2-f1b975b6c428",
+      "name": "Write Client ID to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        -448
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "o02JXCOopD4LGnwX",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "n8n-alerts",
+          "mode": "name"
+        },
+        "text": "=New lead onboarded: {{ $json.fields['Lead Name'] }} (Source: {{ $json.fields['Source'] }}) — assigned Reference ID {{ $json.fields['Reference ID'] }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        1424,
+        -448
+      ],
+      "id": "fea55ab3-b32b-45d7-b34e-0a12413bcf01",
+      "name": "Notify team",
+      "webhookId": "7f02c747-113c-44ea-bcd2-f6fc32338f79",
+      "credentials": {
+        "slackApi": {
+          "id": "T6eMVXZfXupS5Kve",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "\n\nClient\nOnboarding",
+        "height": 192,
+        "width": 1168
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        528,
+        -480
+      ],
+      "typeVersion": 1,
+      "id": "875936fb-05b2-49ae-8701-c403712b3027",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "\nLead \nManagement",
+        "height": 208,
+        "width": 880,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        656,
+        -688
+      ],
+      "typeVersion": 1,
+      "id": "231ae81e-b952-4779-b5c2-6ca8b0e24dd0",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableTokenApi",
+        "baseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "apprknd9I4s3xkStn"
+        },
+        "tableId": {
+          "__rl": true,
+          "value": "tblx1M9ecfBLtf07I",
+          "mode": "id"
+        },
+        "triggerField": "Status",
+        "additionalFields": {}
+      },
+      "id": "873e956b-bce8-4bdc-b133-d9b61afc5b5c",
+      "name": "Project Status Changed",
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [
+        976,
+        -240
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "o02JXCOopD4LGnwX",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "\nProject\nTracking",
+        "height": 208,
+        "width": 848,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        704,
+        -288
+      ],
+      "typeVersion": 1,
+      "id": "f2fcc6bc-8510-4c42-bfba-bc6604ea916c",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "sendTo": "samraishaq200@gmail.com",
+        "subject": "=Project Update: {{ $json.fields['Project Name'] }}",
+        "message": "=Project \"{{ $json.fields['Project Name'] }}\" status changed to: {{ $json.fields['Status'] }}<br>\nAssigned To: {{ $json.fields['Assigned To'] }}<br>\nDeadline: {{ $json.fields['Deadline'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1184,
+        -240
+      ],
+      "id": "1955a069-cb5e-4c01-a2cb-30de769d2e1a",
+      "name": "Send a message1",
+      "webhookId": "3921540f-dad9-4670-82f3-cd5dc20c8dec",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iGZmvcbvPl644zJo",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableTokenApi",
+        "baseId": {
+          "__rl": true,
+          "value": "apprknd9I4s3xkStn",
+          "mode": "id"
+        },
+        "tableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tblDsjpH8JfUjnyjl"
+        },
+        "triggerField": "Deployment Status",
+        "additionalFields": {}
+      },
+      "id": "2291ee91-80f1-4ff5-bd06-982202e18dea",
+      "name": "AI Agent Status Updated",
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [
+        944,
+        -32
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "o02JXCOopD4LGnwX",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "\nAgent\nMonitoring",
+        "height": 176,
+        "width": 848
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        704,
+        -64
+      ],
+      "typeVersion": 1,
+      "id": "f6fb67ed-97e1-4aad-94cb-e426533fd510",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "n8n-alerts",
+          "mode": "name"
+        },
+        "text": "=AI Agent \"{{ $json.fields['Agent Name'] }}\" ({{ $json.fields['Type'] }}) status changed to: {{ $json.fields['Deployment Status'] }}\n   Last Updated: {{ $json.fields['Last Updated'] }}\n   ",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        1200,
+        -32
+      ],
+      "id": "5eae5077-caa7-44f6-a8b3-48843efde3ce",
+      "name": "Notify Operations Team1",
+      "webhookId": "7f02c747-113c-44ea-bcd2-f6fc32338f79",
+      "credentials": {
+        "slackApi": {
+          "id": "T6eMVXZfXupS5Kve",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Airtable Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable Record Created": {
+      "main": [
+        [
+          {
+            "node": "Generate Client ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Client ID": {
+      "main": [
+        [
+          {
+            "node": "Write Client ID to Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Client ID to Airtable": {
+      "main": [
+        [
+          {
+            "node": "Notify team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Project Status Changed": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Status Updated": {
+      "main": [
+        [
+          {
+            "node": "Notify Operations Team1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5667cb83-5ab2-4e30-aa81-dde22794da8b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1eccc734f3fee310a103aef24d5a95d5665eef22a396049aaac22d45539be86c"
+  },
+  "nodeGroups": [],
+  "id": "BDwA5dI3MMTGxekj",
+  "tags": []
+}
