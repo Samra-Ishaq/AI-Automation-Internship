@@ -1,0 +1,530 @@
+{
+  "name": "AI Client Onboarding System (AI Agent Version)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "client-onboarding",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "61e7a355-673f-40da-a16d-f07823d907b4",
+      "name": "Vapi Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -576,
+        192
+      ],
+      "webhookId": "client-onboarding"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalize incoming Vapi payload into flat fields\nconst body = $input.first().json.body || $input.first().json;\nconst args = body.message?.toolCalls?.[0]?.function?.arguments\n  || body.message?.functionCall?.parameters\n  || body.functionCall?.parameters\n  || body;\n\nfunction parseBudget(raw) {\n  if (typeof raw === 'number') return raw;\n  if (!raw) return 0;\n\n  const str = String(raw).toLowerCase().trim();\n\n  // Remove thousands-separator commas between digits (e.g. \"600,000\" -> \"600000\")\n  const noCommas = str.replace(/(\\d),(?=\\d)/g, '$1');\n\n  // Extract the FIRST number only (handles ranges like \"2 to 3 lakhs\" -> takes 2)\n  const match = noCommas.match(/[0-9]+(\\.[0-9]+)?/);\n  if (!match) return 0;\n  let num = parseFloat(match[0]);\n\n  if (noCommas.includes('crore')) return num * 10000000;\n  if (noCommas.includes('lakh') || noCommas.includes('lac')) return num * 100000;\n  if (/\\bk\\b|[0-9]k\\b/.test(noCommas)) return num * 1000;\n\n  return num;\n}\n\nreturn [{\n  json: {\n    client_name: args.client_name || args.name || '',\n    company: args.company_name || args.company || '',\n    email: args.email || '',\n    service: args.service_required || args.service || '',\n    description: args.project_description || args.description || '',\n    budget: parseBudget(args.budget)\n  }\n}];"
+      },
+      "id": "d7ad30af-2ae0-4f55-be92-e6fc84c86571",
+      "name": "Normalize Client Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -368,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Classify this client intake request.\n\nClient Name: {{ $json.client_name }}\nCompany: {{ $json.company }}\nService Requested: {{ $json.service }}\nProject Description: {{ $json.description }}\nBudget (PKR): {{ $json.budget }}\n\nReturn ONLY a valid JSON object (no markdown, no code fences, no explanation) with exactly these 4 fields:\n- service_category: a short category name for the requested service\n- priority: HIGH, MEDIUM, or LOW, following this exact logic — Budget >= 500000 -> HIGH, Budget 200000 to 499999 -> MEDIUM, Budget < 200000 -> LOW\n- summary: one short sentence summarizing what the client needs\n- next_action: a short recommended next step for the team\n\nExample output:\n{\"service_category\": \"Web & Mobile Development\", \"priority\": \"HIGH\", \"summary\": \"Restaurant requires website and mobile ordering application.\", \"next_action\": \"Schedule technical consultation\"}",
+        "options": {
+          "systemMessage": "You are a strict lead classification assistant for a business onboarding pipeline. You always respond with ONLY raw JSON — never markdown, never code fences, never extra commentary. Apply the priority logic exactly as instructed; do not deviate from the budget thresholds given."
+        }
+      },
+      "id": "c40bf342-be27-4204-bf34-0d92e516a4b8",
+      "name": "AI Agent - Classify Lead",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -176,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list"
+        },
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "48b433b6-d286-4b25-88e9-eec07893f761",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -336,
+        416
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "HMEyrUmfRbpcEKoe",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse AI Agent JSON output and merge with original client data\nconst clientData = $('Normalize Client Data').first().json;\nconst raw = $input.first().json.output || $input.first().json.text || '{}';\nconst cleaned = raw.replace(/```json|```/g, '').trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  parsed = { service_category: 'Unclassified', priority: 'LOW', summary: 'Could not parse AI output', next_action: 'Manual review required' };\n}\n\nreturn [{\n  json: {\n    ...clientData,\n    service_category: parsed.service_category,\n    priority: (parsed.priority || 'LOW').toUpperCase(),\n    summary: parsed.summary,\n    next_action: parsed.next_action\n  }\n}];"
+      },
+      "id": "909eed4c-b33f-4f0f-b6f6-dc300f43accf",
+      "name": "Parse AI Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "apprknd9I4s3xkStn",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbldXzMFvk5nEazXj",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Client Name": "={{ $json.client_name }}",
+            "Company": "={{ $json.company }}",
+            "Email": "={{ $json.email }}",
+            "Service": "={{ $json.service }}",
+            "Description": "={{ $json.description }}",
+            "Budget": "={{ $json.budget }}",
+            "Priority": "={{ $json.priority }}",
+            "Summary": "={{ $json.summary }}",
+            "Category": "={{ $json.service_category }}",
+            "Status": "New"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Client Name",
+              "displayName": "Client Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Service",
+              "displayName": "Service",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Budget",
+              "displayName": "Budget",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "HIGH",
+                  "value": "HIGH"
+                },
+                {
+                  "name": "MEDIUM",
+                  "value": "MEDIUM"
+                },
+                {
+                  "name": "LOW",
+                  "value": "LOW"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "Completed",
+                  "value": "Completed"
+                },
+                {
+                  "name": "On Hold",
+                  "value": "On Hold"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created At",
+              "displayName": "Created At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "b172a1e7-4f2d-4961-9ded-4091e2b9cd61",
+      "name": "Airtable - Create Record",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        320,
+        80
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "o02JXCOopD4LGnwX",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "2a7e47e7-6298-4a9b-866c-07642251f426",
+          "mode": "list",
+          "cachedResultName": "Client Projects",
+          "cachedResultUrl": "https://app.notion.com/p/2a7e47e762984a9b866c07642251f426"
+        },
+        "title": "={{ $json.company }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "=Client|rich_text",
+              "textContent": "={{ $json.client_name }}"
+            },
+            {
+              "key": "=Service|rich_text",
+              "textContent": "={{ $json.service_category }}"
+            },
+            {
+              "key": "=Budget|number",
+              "numberValue": "={{ $json.budget }}"
+            },
+            {
+              "key": "=Priority|select",
+              "selectValue": "={{ $json.priority }}"
+            },
+            {
+              "key": "=Summary|rich_text",
+              "textContent": "={{ $json.summary }}"
+            },
+            {
+              "key": "=Next Action|rich_text",
+              "textContent": "={{ $json.next_action }}"
+            },
+            {
+              "key": "=Status|select",
+              "selectValue": "=New"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c1e5b81b-38a1-42ea-826a-53c7d6284042",
+      "name": "Notion - Create Page",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        304
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "YCVZysDxr7ZB8S4p",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build priority-based Slack message\nconst data = $('Parse AI Output').first().json;\nconst p = (data.priority || 'LOW').toUpperCase();\n\nconst tag = p === 'HIGH' ? '🔴 HIGH PRIORITY CLIENT'\n  : p === 'MEDIUM' ? '🟡 MEDIUM PRIORITY CLIENT'\n  : '🟢 STANDARD CLIENT';\n\nconst text = `*NEW CLIENT* — ${tag}\\n\\n*${data.client_name}* - ${data.company}\\nService: ${data.service}\\nBudget: PKR ${data.budget}\\nPriority: ${p}\\n\\nAI Summary: ${data.summary}\\nNext Action: ${data.next_action}\\n\\n✅ Airtable + Notion records created successfully.`;\n\nreturn [{ json: { text } }];"
+      },
+      "id": "f7cc0cc2-3bd1-4b3a-a81d-d7c086cc0376",
+      "name": "Build Slack Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "new-clients"
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {}
+      },
+      "id": "327fee40-47a7-4f1f-8a8d-609bdafa6bed",
+      "name": "Slack - Notify Team",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        192
+      ],
+      "webhookId": "f62d15e1-1915-404a-bcca-c33b9e91bbf6",
+      "credentials": {
+        "slackApi": {
+          "id": "T6eMVXZfXupS5Kve",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"success\", \"message\": \"Client onboarded successfully\" } }}",
+        "options": {}
+      },
+      "id": "29b7e47b-913f-46d3-aab0-b2a1b86cd5e7",
+      "name": "Respond to Vapi",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        992,
+        192
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Vapi Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Client Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Client Data": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Classify Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Classify Lead",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Classify Lead": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Output": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Create Record",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notion - Create Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Create Record": {
+      "main": [
+        [
+          {
+            "node": "Build Slack Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion - Create Page": {
+      "main": [
+        [
+          {
+            "node": "Build Slack Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Slack Message": {
+      "main": [
+        [
+          {
+            "node": "Slack - Notify Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack - Notify Team": {
+      "main": [
+        [
+          {
+            "node": "Respond to Vapi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d6722e8c-55ab-4925-a4e1-787af1822942",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1eccc734f3fee310a103aef24d5a95d5665eef22a396049aaac22d45539be86c"
+  },
+  "nodeGroups": [],
+  "id": "R7zdByPSGsMXL9Bw",
+  "tags": []
+}
